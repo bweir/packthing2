@@ -20,6 +20,8 @@ def get_platform():
 
     return _platform
 
+def note(*objs):
+    print("NOTE:", *objs, file=sys.stderr)
 
 def warning(*objs):
     print("WARNING:", *objs, file=sys.stderr)
