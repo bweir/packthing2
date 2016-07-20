@@ -1,5 +1,5 @@
-import util
-import testfunctions as tf
+import utils.log as log
+import utils.test as tf
 
 TEXT        = ".*"
 EMAIL       = "[^@]+@[^@]+\.[^@]+"
@@ -103,9 +103,23 @@ def getKeyDict(config, group):
         output += msgListKeys(group, notdefined,    "Not found")
         output += msgListKeys(group, invalidkeys,   "Invalid keys")
 
-        util.error(output)
+        log.error(output)
 
     return newconfig
+
+def loadModule(config, key, modulename, package):
+    import importer
+    if key in config:
+
+        try:
+            importer.module(modulename, package)
+        except (KeyError, ImportError, TypeError):
+            if not modulename or modulename == None:
+                config.pop(key)
+            else:
+                log.error("No module '"+modulename+"' in '"+package.__name__+"'")
+
+    return config
 
 
 def mergeKeys(config, key, name):
@@ -113,17 +127,17 @@ def mergeKeys(config, key, name):
         try:
             config[key][name].keys()
         except KeyError:
-            util.warn("No "+key+"-specific key present: '"+name+"'")
+            log.warn("No "+key+"-specific key present: '"+name+"'")
         except AttributeError:
-            util.warn("Empty "+key+"-specific key present: '"+name+"'")
+            log.warn("Empty "+key+"-specific key present: '"+name+"'")
         except TypeError:
-            util.warn("Empty '"+key+"' key")
+            log.warn("Empty '"+key+"' key")
         else:
             for c in config[key][name].keys():
                 if c in config.keys():
                     output = "'"+c+"' redefined as: "+str(config[key][name][c])+"\n"
                     output += "First defined as: "+str(config[c])
-                    util.error(output)
+                    log.error(output)
 
             config.update(config[key][name])
 
