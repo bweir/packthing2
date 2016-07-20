@@ -2,24 +2,42 @@ from __future__ import print_function
 
 import yaml
 import util
-import re
 import keyengine as kk
+import importer
+
+kk.key("info", "name",             True,   str, kk.TEXT)
+kk.key("info", "package",          True,   str, kk.SLUG)
+kk.key("info", "org",              True,   str, kk.TEXT)
+kk.key("info", "url",              True,   str, kk.URL)
+kk.key("info", "maintainer",       True,   str, kk.TEXT)
+kk.key("info", "email",            True,   str, kk.EMAIL)
+kk.key("info", "copyright",        True,   str, kk.COPYRIGHT)
+kk.key("info", "license",          True,   str, kk.LICENSE)
+kk.key("info", "tagline",          True,   str, kk.TEXT)
+kk.key("info", "description",      True,   str, kk.TEXT)
+kk.key("info", "master",           False,  str, kk.SLUG)
 
 
-kk.key("name",             True,   str, kk.TEXT)
-kk.key("package",          True,   str, kk.SLUG)
-kk.key("org",              True,   str, kk.TEXT)
-kk.key("url",              True,   str, kk.URL)
-kk.key("maintainer",       True,   str, kk.TEXT)
-kk.key("email",            True,   str, kk.EMAIL)
-kk.key("copyright",        True,   str, kk.COPYRIGHT)
-kk.key("license",          True,   str, kk.LICENSE)
-kk.key("tagline",          True,   str, kk.TEXT)
-kk.key("description",      True,   str, kk.TEXT)
-kk.key("master",           False,  str, kk.SLUG)
+platforms = importer.module("platforms")
+print(importer.listModules(platforms))
+
+ckis = importer.listModules(platforms)
+
+print("PACK", importer.listPackages(platforms))
+print("MOD ", importer.listModules(platforms))
+print("MAA", importer.list_module_hierarchy(ckis))
+
+platforms = importer.module("chickn", platforms)
+print (platforms)
+
+#print( importer.get_modulelist(platform))
+#print( get_module(parent, modulename) )
+#print( list_module_hierarchy(module) )
+#print( build_module_hierarchy(module) )
+
 
 def getPlatform(config):
-    import ptplatform.linux
+    import platforms.linux
     config = kk.mergeKeys(config, "platform", "linux")
     config = getInfo(config)
     return config
@@ -35,7 +53,7 @@ def getInfo(config):
     elif "packager" in config:
         return getPackager(config)
     else:
-        return kk.getKeyDict(config)
+        return kk.getKeyDict(config, "info")
 
 def load(filename):
     try:

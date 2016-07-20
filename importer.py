@@ -4,26 +4,39 @@ import util
 import pkgutil, importlib
 import inspect
 
+from types import ModuleType
+
 _platform = util.get_platform()
 
-def get_modulelist(package):
-    packagelist = []
+def module(name, parent=None):
+    if parent == None:
+        try:
+            return importlib.import_module(name)
+        except ImportError:
+            util.error("No module named '"+name+"'")
+    else:
+        if not type(parent) == ModuleType:
+            util.error("Module '"+str(parent)+"' is not a module!")
 
+        try:
+            return importlib.import_module(parent.__name__+'.'+name)
+        except ImportError:
+            util.error("No module named '"+name+"' in '"+parent.__name__+"'")
+
+
+def listPackages(package):
+    return listModules(package, True)
+
+def listModules(package, ispkg=False):
+    modules = []
     for p in pkgutil.iter_modules(package.__path__, package.__name__+'.'):
-        packagelist.append(p[1])
+        if p[2] == ispkg:
+            modules.append(p[1])
 
-#    for p in pkgutil.walk_packages(package.__path__, package.__name__ + '.'):
-#        packagelist.append(p[1])
+    for i in range(len(modules)):
+        modules[i] = modules[i].split('.')[-1]
 
-    for i in range(len(packagelist)):
-        packagelist[i] = packagelist[i].split('.')[-1]
-
-    packagelist = [x for x in packagelist if not x.startswith('_')]
-
-    return packagelist
-
-def get_module(parent, modulename):
-    return importlib.import_module(parent.__name__+'.'+modulename)
+    return modules
 
 def list_module_hierarchy(module):
     clsmembers = inspect.getmembers(module, inspect.isclass)

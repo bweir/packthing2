@@ -21,10 +21,10 @@ def get_platform():
     return _platform
 
 def note(*objs):
-    print("NOTE:", *objs, file=sys.stderr)
+    print(" NOTE:", *objs, file=sys.stderr)
 
-def warning(*objs):
-    print("WARNING:", *objs, file=sys.stderr)
+def warn(*objs):
+    print(" WARN:", *objs, file=sys.stderr)
 
 def error(*objs):
     blocks = []
@@ -34,7 +34,7 @@ def error(*objs):
         else:
             blocks.append(b)
 
-    print("\nERROR:", "\n".join(blocks), file=sys.stderr)
+    print("ERROR:", "\n".join(blocks), file=sys.stderr)
     print()
     sys.exit(1)
 

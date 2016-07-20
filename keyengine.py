@@ -13,8 +13,10 @@ COPYRIGHT   = "[0-9]{4}(-[0-9]{4})?"
 URL         = "(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?"
 
 key_table = {}
+key_stack = 0
 
-class key_base(object):
+class KeyBase(object):
+    group = None
     name = None
     pattern = None
     value = None
@@ -22,41 +24,51 @@ class key_base(object):
     required = None
 
     def __repr__(self):
-#        return "%14s: %-100s (%s, %s)" % (self.name, self.value, self.valuetype.__name__, self.pattern)
-        return "(%s: %s)" % (self.name, self.value)
+        return "((%s) %s: %s)" % (self.group, self.name, self.value)
 
     def setValue(self, value):
         tf.isType(self.name, value, self.valuetype)
         self.value = value
 
-def key(name, required=False, valuetype=None, pattern=None):
+def key(group, name, required=False, valuetype=None, pattern=None):
+    keys(group)
+
     try:
-        k = key_table[name]
+        k = key_table[group][name]
     except KeyError:
-        class k(key_base):
+        class k(KeyBase):
             pass
         k.__name__ = name
+        k.group = group
         k.name = name 
         k.required = required 
         k.valuetype = valuetype
         k.pattern = pattern
         k.value = None
-        key_table[name] = k
+        key_table[group][name] = k
     return k
 
+def keys(group):
+    try:
+        g = key_table[group]
+    except KeyError:
+        g = {}
+        key_table[group] = g
+    return g
+
 def method(k):
-    assert issubclass(k, key_base)
+    assert issubclass(k, KeyBase)
     def bind(fn):
         setattr(k, fn.__name__, fn)
     return bind
 
-def getKey(k):
-    for i in key_table:
+def getKey(group, k):
+    for i in key_table[group]:
         if k == i:
             return True
     return False
 
-def msgListKeys(text, keys):
+def msgListKeys(group, keys, text):
     output = ""
 
     if len(keys):
@@ -67,29 +79,29 @@ def msgListKeys(text, keys):
     return output
 
 
-def getKeyDict(config):
+def getKeyDict(config, group):
     newconfig = {}
 
     notdefined = []
     invalidkeys = []
 
     for c in config:
-        if getKey(c):
-            newkey = key(c)()
+        if getKey(group, c):
+            newkey = key(group, c)()
             newkey.setValue(config[c])
             newconfig[c] = newkey
         else:
             invalidkeys.append(c)
 
-    for i in key_table.keys():
+    for i in keys(group):
         if not i in newconfig.keys():
-            if key(i)().required:
+            if key(group, i)().required:
                 notdefined.append(i)
 
     if len(notdefined) or len(invalidkeys):
-        output = "Some keys were not found or invalid!"
-        output += msgListKeys("Not found", notdefined)
-        output += msgListKeys("Invalid keys", invalidkeys)
+        output = "Some '"+group+"' keys were not found or invalid!"
+        output += msgListKeys(group, notdefined,    "Not found")
+        output += msgListKeys(group, invalidkeys,   "Invalid keys")
 
         util.error(output)
 
@@ -99,16 +111,20 @@ def getKeyDict(config):
 def mergeKeys(config, key, name):
     if key in config:
         try:
-            config[key][name]
+            config[key][name].keys()
         except KeyError:
-            util.note("No "+key+"-specific keys present")
+            util.warn("No "+key+"-specific key present: '"+name+"'")
+        except AttributeError:
+            util.warn("Empty "+key+"-specific key present: '"+name+"'")
+        except TypeError:
+            util.warn("Empty '"+key+"' key")
         else:
             for c in config[key][name].keys():
                 if c in config.keys():
                     output = "'"+c+"' redefined as: "+str(config[key][name][c])+"\n"
                     output += "First defined as: "+str(config[c])
                     util.error(output)
-    
+
             config.update(config[key][name])
 
         config.pop(key)
