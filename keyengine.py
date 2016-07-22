@@ -13,7 +13,6 @@ COPYRIGHT   = "[0-9]{4}(-[0-9]{4})?"
 URL         = "(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?"
 
 key_table = {}
-key_stack = 0
 
 class KeyBase(object):
     group = None
@@ -108,7 +107,7 @@ def getKeyDict(config, group):
     return newconfig
 
 def loadModule(config, key, modulename, package):
-    import importer
+    import PackthingImporter as importer
     if key in config:
 
         try:

@@ -3,8 +3,8 @@ from __future__ import print_function
 import yaml
 import keyengine as kk
 import utils.log as log
-from PackthingConfiguration import Configuration as cfg
-import importer
+import PackthingConfiguration as cfg
+import PackthingImporter as importer
 
 import platforms
 import packagers
@@ -23,16 +23,6 @@ kk.key("info", "tagline",          True,   str, kk.TEXT)
 kk.key("info", "description",      True,   str, kk.TEXT)
 kk.key("info", "master",           False,  str, kk.SLUG)
 kk.key("info", "repos",            False,  dict, kk.SLUG)
-
-#print(importer.listModules(platforms))
-#
-#ckis = importer.listModules(platforms)
-#
-print("PLAT", importer.listPackages(platforms))
-print("BUILD", importer.listPackages(builders))
-print("CONT", importer.listPackages(controllers))
-print("PACK", importer.listPackages(packagers))
-#print("MAA", importer.list_module_hierarchy(ckis))
 
 def getScope(config, key, package):
     scope = cfg.value(key)

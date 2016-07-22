@@ -1,7 +1,17 @@
 import PackthingParser as pp
-from PackthingConfiguration import Configuration as cfg
+import PackthingConfiguration as cfg
 
-cfg.packager = "deb"
-cfg.arch = "windows"
+#print(importer.listModules(platforms))
+#ckis = importer.listModules(platforms)
+
+#print("PLAT", importer.listPackages(platforms))
+#print("BUILD", importer.listPackages(builders))
+#print("CONT", importer.listPackages(controllers))
+#print("PACK", importer.listPackages(packagers))
+##print("MAA", importer.list_module_hierarchy(ckis))
+
+for k in cfg.keys():
+    print "%10s: %s" % (k, cfg.value(k))
+
 pp.parse('packthing.yml')
 
