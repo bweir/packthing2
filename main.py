@@ -10,8 +10,8 @@ import PackthingConfiguration as cfg
 #print("PACK", importer.listPackages(packagers))
 ##print("MAA", importer.list_module_hierarchy(ckis))
 
-for k in cfg.keys():
-    print "%10s: %s" % (k, cfg.value(k))
+#for k in cfg.keys():
+#    print "%10s: %s" % (k, cfg.value(k))
 
 pp.parse('packthing.yml')
 

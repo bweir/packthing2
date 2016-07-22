@@ -11,19 +11,52 @@ import packagers
 import builders
 import controllers
 
-kk.key("info", "name",             True,   str, kk.TEXT)
-kk.key("info", "package",          True,   str, kk.SLUG)
-kk.key("info", "org",              True,   str, kk.TEXT)
-kk.key("info", "url",              True,   str, kk.URL)
-kk.key("info", "maintainer",       True,   str, kk.TEXT)
-kk.key("info", "email",            True,   str, kk.EMAIL)
-kk.key("info", "copyright",        True,   str, kk.COPYRIGHT)
-kk.key("info", "license",          True,   str, kk.LICENSE)
-kk.key("info", "tagline",          True,   str, kk.TEXT)
-kk.key("info", "description",      True,   str, kk.TEXT)
-kk.key("info", "master",           False,  str, kk.SLUG)
-kk.key("info", "repos",            False,  dict, kk.SLUG)
-kk.key("info", "mimetypes",        False,  list, kk.SLUG)
+kk.dictionary("main")
+
+kk.info("name",             "main",     kk.TEXT)
+kk.info("package",          "main",     kk.SLUG)
+kk.info("org",              "main",     kk.TEXT)
+kk.info("url",              "main",     kk.URL)
+kk.info("maintainer",       "main",     kk.TEXT)
+kk.info("email",            "main",     kk.EMAIL)
+kk.info("copyright",        "main",     kk.COPYRIGHT)
+kk.info("license",          "main",     kk.LICENSE)
+kk.info("tagline",          "main",     kk.TEXT)
+kk.info("description",      "main",     kk.TEXT)
+kk.info("master",           "main",     kk.SLUG)
+
+kk.collection("platform",   "main")
+kk.collection("packager",   "main")
+kk.collection("builder",    "main")
+
+kk.collection("repo",       "main")
+
+kk.info("url",              "repo")
+kk.info("builder",          "repo")
+kk.info("branch",           "repo")
+kk.info("tag",              "repo")
+kk.info("root",             "repo")
+
+kk.collection("files",      "repo")
+
+kk.info("name",             "files",    kk.TEXT)
+kk.info("icon",             "files",    kk.PATH_REL)
+
+kk.array("mimetype",        "main")
+
+kk.info("type",             "mimetype")
+kk.info("extension",        "mimetype")
+kk.info("description",      "mimetype")
+kk.info("icon",             "mimetype")
+kk.info("files",            "mimetype")
+
+
+#print(kk.key("url")("mooooo").visit())
+#print(kk.key("repos")({
+#    "sdfsd": "sdfsdfs",
+#    "sdfsssss": "aaasds",
+#    }).visit())
+#
 
 def getScope(config, key, package):
     scope = cfg.value(key)
@@ -31,23 +64,45 @@ def getScope(config, key, package):
     config = kk.mergeKeys(config, key, scope)
     return config
 
-def getPlatform(config):
+def getPlatform(config, group):
     config = getScope(config, "platform", platforms)
-    config = getInfo(config)
+    config = getGroup(config, group)
     return config
 
-def getPackager(config):
+def getPackager(config, group):
     config = getScope(config, "packager", packagers)
-    config = getInfo(config)
+    config = getGroup(config, group)
     return config
 
-def getInfo(config):
-    if "platform" in config:
-        return getPlatform(config)
-    elif "packager" in config:
-        return getPackager(config)
-    else:
-        return kk.getKeyDict(config, "info")
+def getGroup(config, group):
+    for k in kk.keys(group):
+        if k == "platform":
+            config = getPlatform(config, group)
+        elif k == "packager":
+            config = getPackager(config, group)
+        elif k == "repos":
+            config = getRepos(config, group)
+        else:
+            return kk.getKeyDict(config, group)
+
+def getRepos(config):
+    repos = {}
+
+    for c in config.keys():
+        print (c, config[c])
+
+    return repos
+
+#def getDict(d, group=None):
+#    for k, v in d.items():
+#        if k in kk.keys(group):
+#            kk.key(k)(v).visit()
+##        else:
+##            log.error("OIDFJID", k, v)
+
+def getPackfile(d):
+    k = kk.dictionary("main")(d)
+    k.visit()
 
 def load(filename):
     try:
@@ -57,10 +112,13 @@ def load(filename):
 
 def parse(filename):
 
-    config = load(filename)
-    config = getInfo(config)
+    d = load(filename)
+    #config = getGroup(config, "info")
+#    config = getGroup(config, "info")
 
-    print(kk.key_table)
+    getPackfile(d)
 
-    for c in config:
-        print(config[c])
+#    print(kk.key_table)
+#
+#    for c in config:
+#        print(config[c])

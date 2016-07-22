@@ -10,25 +10,7 @@ tagline: The fun Spin editor
 description: An easy-to-use cross-platform development tool for the Parallax Propeller microcontroller.
 master: propelleride
 
-platform: 
-    linux: 
-        categories: Development;IDE
-        section: Applications/Editors
-        help2man: openspin
-    mac: 
-        category: public.app-category.developer-tools
-
-packager:
-    deb:
-        depends: libftdi1
-    dmg: 
-        background: icons/mac-dmg.png
-        bundle: propelleride
-    inno:
-        banner: icons/win-banner.bmp
-        run: propelleride
-
-repos: 
+repo: 
     propelleride:
         url: https://github.com/parallaxinc/PropellerIDE.git
         branch: master
@@ -65,7 +47,7 @@ repos:
         url: https://github.com/parallaxinc/spin-docs.git
         builder: dir
 
-mimetypes:
+mimetype:
     - type: text/x-spin
       extension: spin
       description: Propeller Spin object

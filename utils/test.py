@@ -1,4 +1,6 @@
-import util
+from utils import log
+
+import re
 
 def isMissingKeys(keylist):
     if len(_missingkeys):
@@ -7,23 +9,24 @@ def isMissingKeys(keylist):
             msg += "\n- %-16s %-50s (e.g. %s)" % (k,
                     keylist.description(k),
                     keylist.example(k))
-        util.error(msg)
+        log.error(msg)
 
 def isType(key, value, expected):
-    if not type(value) is expected:
-        util.error("Key '"+key+"' is of type '"+type(value).__name__+"';",
+    try:
+        assert isinstance(value, expected)
+    except AssertionError:
+        log.error("Key '"+key+"' is of type '"+type(value).__name__+"';",
                    "expected '"+expected.__name__+"'.",
                    "(value: "+str(value)+")")
 
 def isEmpty(key, value):
     if value == "" or value == None:
-        util.error("'"+key+"' is defined but empty") 
+        log.error("'"+key+"' is defined but empty") 
 
 def isMatch(key, value, pattern):
-    regex = re.compile("^"+pattern+"$")
     try:
-        if not regex.match(value):
-            util.error(key+"' value '"+value+"' does not match pattern '"+pattern+"'")
+        if not re.compile("^"+pattern+"$").match(value):
+            log.error(key+"' value '"+value+"' does not match pattern '"+pattern+"'")
     except TypeError:
-        util.error("Invalid type for '"+key+"' value: "+str(value))
+        log.error("Invalid type for '"+key+"' value: "+str(value))
 
