@@ -25,7 +25,7 @@ class KeyBase(object):
     def __repr__(self):
         return "((%s) %s: %s)" % (self.group, self.name, self.value)
 
-    def setValue(self, value):
+    def __init__(self, value):
         tf.isType(self.name, value, self.valuetype)
         self.value = value
 
@@ -86,9 +86,7 @@ def getKeyDict(config, group):
 
     for c in config:
         if getKey(group, c):
-            newkey = key(group, c)()
-            newkey.setValue(config[c])
-            newconfig[c] = newkey
+            newconfig[c] = key(group, c)(config[c])
         else:
             invalidkeys.append(c)
 

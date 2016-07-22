@@ -23,6 +23,7 @@ kk.key("info", "tagline",          True,   str, kk.TEXT)
 kk.key("info", "description",      True,   str, kk.TEXT)
 kk.key("info", "master",           False,  str, kk.SLUG)
 kk.key("info", "repos",            False,  dict, kk.SLUG)
+kk.key("info", "mimetypes",        False,  list, kk.SLUG)
 
 def getScope(config, key, package):
     scope = cfg.value(key)

@@ -12,7 +12,6 @@ master: propelleride
 
 platform: 
     linux: 
-        depends: libftdi1
         categories: Development;IDE
         section: Applications/Editors
         help2man: openspin
@@ -20,6 +19,8 @@ platform:
         category: public.app-category.developer-tools
 
 packager:
+    deb:
+        depends: libftdi1
     dmg: 
         background: icons/mac-dmg.png
         bundle: propelleride
@@ -37,16 +38,6 @@ repos:
             propelleride:
                 name: PropellerIDE
                 icon: icons/icon-new.png
-                mimetypes:
-                    - type: text/x-spin
-                      extension: spin
-                      description: Propeller Spin object
-                      icon: icons/text-x-spin.png
-
-                    - type: application/x-binary
-                      extension: binary
-                      description: Propeller binary
-                      icon: icons/application-x-binary.png
 
     openspin:
         url: https://github.com/bweir/OpenSpin.git
@@ -73,3 +64,17 @@ repos:
     doc:
         url: https://github.com/parallaxinc/spin-docs.git
         builder: dir
+
+mimetypes:
+    - type: text/x-spin
+      extension: spin
+      description: Propeller Spin object
+      icon: icons/text-x-spin.png
+      files: propelleride
+
+    - type: application/x-binary
+      extension: binary
+      description: Propeller binary
+      icon: icons/application-x-binary.png
+      files: propelleride
+
