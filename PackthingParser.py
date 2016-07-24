@@ -7,94 +7,62 @@ import PackthingConfiguration as cfg
 import PackthingImporter as importer
 
 import platforms
-import packagers
-import builders
 import controllers
+import builders
+import packagers
+
+kk.loadAll(platforms)
+kk.loadAll(controllers)
+kk.loadAll(builders)
+kk.loadAll(packagers)
 
 kk.dictionary("main")
 
-kk.info("name",             "main",     kk.TEXT)
-kk.info("package",          "main",     kk.SLUG)
-kk.info("org",              "main",     kk.TEXT)
-kk.info("url",              "main",     kk.URL)
-kk.info("maintainer",       "main",     kk.TEXT)
-kk.info("email",            "main",     kk.EMAIL)
-kk.info("copyright",        "main",     kk.COPYRIGHT)
-kk.info("license",          "main",     kk.LICENSE)
-kk.info("tagline",          "main",     kk.TEXT)
-kk.info("description",      "main",     kk.TEXT)
-kk.info("master",           "main",     kk.SLUG)
+kk.info("name",             "main",     kk.TEXT,        True)
+kk.info("package",          "main",     kk.SLUG,        True)
+kk.info("org",              "main",     kk.TEXT,        True)
+kk.info("url",              "main",     kk.URL,         True)
+kk.info("maintainer",       "main",     kk.TEXT,        True)
+kk.info("email",            "main",     kk.EMAIL,       True)
+kk.info("copyright",        "main",     kk.COPYRIGHT,   True)
+kk.info("license",          "main",     kk.LICENSE,     True)
+kk.info("tagline",          "main",     kk.TEXT,        True)
+kk.info("description",      "main",     kk.TEXT,        True)
+kk.info("master",           "main",     kk.SLUG,        False)
 
-kk.collection("platform",   "main")
-kk.collection("packager",   "main")
-kk.collection("builder",    "main")
+kk.dictionary("platform",   "main")
+kk.dictionary("packager",   "main")
+kk.dictionary("builder",    "main")
 
 kk.collection("repo",       "main")
 
-kk.info("url",              "repo",     kk.URL)
-kk.info("builder",          "repo",     kk.SLUG)
-kk.info("branch",           "repo",     kk.TEXT)
-kk.info("tag",              "repo",     kk.TEXT)
-kk.info("root",             "repo",     kk.PATH_REL)
+kk.info("url",              "repo",     kk.URL,         True)
+kk.info("builder",          "repo",     kk.SLUG,        True)
+kk.info("branch",           "repo",     kk.TEXT,        False)
+kk.info("tag",              "repo",     kk.TEXT,        False)
+kk.info("root",             "repo",     kk.PATH_REL,    False)
 
 kk.collection("files",      "repo")
 
-kk.info("name",             "files",    kk.TEXT)
-kk.info("icon",             "files",    kk.PATH_REL)
+kk.info("name",             "files",    kk.TEXT,        True)
+kk.info("icon",             "files",    kk.PATH_REL,    True)
 
 kk.array("mimetype",        "main")
 
-kk.info("type",             "mimetype")
-kk.info("extension",        "mimetype")
-kk.info("description",      "mimetype")
-kk.info("icon",             "mimetype")
-kk.info("files",            "mimetype")
+kk.info("type",             "mimetype", kk.TEXT,        True)
+kk.info("extension",        "mimetype", kk.TEXT,        True)
+kk.info("description",      "mimetype", kk.TEXT,        True)
+kk.info("icon",             "mimetype", kk.TEXT,        True)
+kk.info("files",            "mimetype", kk.TEXT,        True)
 
-def getScope(config, key, package):
-    scope = cfg.value(key)
-    config = kk.loadModule(config, key, scope, package)
-    config = kk.mergeKeys(config, key, scope)
-    return config
 
-def getPlatform(config, group):
-    config = getScope(config, "platform", platforms)
-    config = getGroup(config, group)
-    return config
-
-def getPackager(config, group):
-    config = getScope(config, "packager", packagers)
-    config = getGroup(config, group)
-    return config
-
-def getGroup(config, group):
-    for k in kk.keys(group):
-        if k == "platform":
-            config = getPlatform(config, group)
-        elif k == "packager":
-            config = getPackager(config, group)
-        elif k == "repos":
-            config = getRepos(config, group)
-        else:
-            return kk.getKeyDict(config, group)
-
-def getRepos(config):
-    repos = {}
-
-#    for c in config.keys():
-#        print (c, config[c])
-
-    return repos
-
-#def getDict(d, group=None):
-#    for k, v in d.items():
-#        if k in kk.keys(group):
-#            kk.key(k)(v).visit()
-##        else:
-##            log.error("OIDFJID", k, v)
 
 def getPackfile(d):
+    log.failOnError(False)
     k = kk.dictionary("main")(d)
-    k.visit()
+    log.printErrors()
+#    k.visit()
+#    log.abort()
 
 def load(filename):
     try:
@@ -105,12 +73,7 @@ def load(filename):
 def parse(filename):
 
     d = load(filename)
-    #config = getGroup(config, "info")
-#    config = getGroup(config, "info")
 
     getPackfile(d)
 
 #    print(kk.key_table)
-#
-#    for c in config:
-#        print(config[c])

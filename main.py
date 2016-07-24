@@ -1,8 +1,9 @@
 import PackthingParser as pp
 import PackthingConfiguration as cfg
 
-#print(importer.listModules(platforms))
-#ckis = importer.listModules(platforms)
+import PackthingImporter as importer
+
+import platforms
 
 #print("PLAT", importer.listPackages(platforms))
 #print("BUILD", importer.listPackages(builders))
@@ -10,8 +11,14 @@ import PackthingConfiguration as cfg
 #print("PACK", importer.listPackages(packagers))
 ##print("MAA", importer.list_module_hierarchy(ckis))
 
-#for k in cfg.keys():
-#    print "%10s: %s" % (k, cfg.value(k))
-
 pp.parse('packthing.yml')
 
+#print cfg.allowed("platform")
+
+platform = importer.module(cfg.value("platform"), platforms)
+#print cfg.allowed("packager")
+platform.setup()
+#print cfg.allowed("packager")
+
+
+cfg.printConfiguration()

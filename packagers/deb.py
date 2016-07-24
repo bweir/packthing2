@@ -1,3 +1,6 @@
 import keyengine as kk
 
-kk.key("info", "depends",          True,  str, kk.SLUG)
+kk.dictionary("deb",    "packager")
+
+kk.infoList("depends",  "deb",      "[a-zA-Z0-9\\-]+")
+

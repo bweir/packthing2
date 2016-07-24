@@ -1,5 +1,7 @@
 from __future__ import print_function
 
+import PackthingImporter as importer
+
 import utils.log as log
 import utils.test as tf
 
@@ -22,6 +24,7 @@ class KeyBase(object):
     name = None
     group = None
     value = None
+    required = None
 
     def visit(self):
 #        print (k, v)
@@ -44,8 +47,6 @@ def key(name, group=None):
         k.__name__ = name
         k.name = name 
         k.group = group
-#        k.required = required 
-#        k.pattern = pattern
 #        k.value = None
         key_table[group][name] = k
 
@@ -67,17 +68,24 @@ def keys(group=None):
         key_table[group] = {}
     return key_table[group].keys()
 
-def newDict(value, group=None):
-#    print (group)
+def required(a, group=None, name=None):
+    k = key(a, group)
+    if k.required == True:
+        if name:
+            log.error("Missing '"+a+"' key in "+group+" '"+name+"'")
+        else:
+            log.error("Missing key '"+a+"' in group '"+group+"'")
+
+def newDict(value, group=None, name=None):
     available = keys(group)
 
     d = {}
     for k, v in value.items():
-#        print(available, k)
         try:
             available.remove(k)
         except ValueError:
-            log.error("Key '"+k+"' not in '"+group+"' group")
+            log.error("Key '"+k+"' not valid in '"+group+"' group")
+
         if isinstance(v, dict):
             d[k] = dictionary(k, group)(v)
         elif isinstance(v, list):
@@ -85,17 +93,20 @@ def newDict(value, group=None):
         elif isinstance(v, str):
             d[k] = key(k, group)(v)
         else:
-            log.error("Key '"+k+"' has no subkeys!")
+            log.warn("Group '"+k+"' has no keys")
+
+    for a in available:
+        required(a, group, name)
 
     return d
 
 
 def newkey(fn):
-    def bind(name, group=None, pattern=TEXT, required=False):
+    def bind(name, group=None, *args): 
         try:
             return key_table[group][name]
         except KeyError:
-            k = fn(name, group)
+            k = fn(name, group, *args)
             key_table[group][name] = k
             return k
     return bind
@@ -117,8 +128,34 @@ def info(name, group=None, pattern=TEXT, required=False):
     k.visit = visit
     k.pattern = pattern
     k.required = required
-    key_table[group][name] = k
     return k
+
+
+@newkey
+def infoList(name, group=None, pattern=TEXT):
+    def __init__(self, value):
+        if isinstance(value, str):
+            tf.isType(self.name, value, str)
+            tf.isEmpty(self.name, value)
+            tf.isMatch(self.name, value, pattern)
+            self.value = [value]
+        elif isinstance(value, list):
+            self.value = []
+            for v in value:
+                tf.isType(self.name, value, str)
+                tf.isEmpty(self.name, value)
+                tf.isMatch(self.name, value, pattern)
+                self.value.append(v)
+
+    def visit(self):
+        print(push_stack, "  "*push_stack, self.name+": ["+', '.join(self.value)+"]")
+
+    k = key(name, group)
+    k.__init__ = __init__
+    k.visit = visit
+    k.pattern = pattern
+    return k
+
 
 @newkey
 def dictionary(name, group=None):
@@ -176,7 +213,7 @@ def collection(name, group=None):
         self.value = {}
         for k, v in value.items():
 #            print (v, name, k)
-            self.value[k] = newDict(v, name)
+            self.value[k] = newDict(v, name, k)
 
     def visit(self):
         global push_stack
@@ -200,82 +237,6 @@ def collection(name, group=None):
     return k
 
 
-
-#def getKey(group, k):
-#    return key_table[group].get(k)
-#
-#def msgListKeys(group, keys, text):
-#    output = ""
-#
-#    if len(keys):
-#        output += "\n\n"+text+":"
-#        for i in keys:
-#            output += "\n- "+i
-#
-#    return output
-#
-#
-#def getKeyDict(config, group):
-#    newconfig = {}
-#
-#    notdefined = []
-#    invalidkeys = []
-#
-#    for c in config.keys():
-#        try:
-#            newconfig[c] = getKey(group, c)(config[c])
-#        except TypeError:
-#            invalidkeys.append(c)
-#
-#    for i in keys(group):
-#        if not i in newconfig.keys():
-#            if key(group, i)().required:
-#                notdefined.append(i)
-#
-#    if len(notdefined) or len(invalidkeys):
-#        output = "Some '"+group+"' keys were not found or invalid!"
-#        output += msgListKeys(group, notdefined,    "Not found")
-#        output += msgListKeys(group, invalidkeys,   "Invalid keys")
-#
-#        log.error(output)
-#
-#    return newconfig
-#
-#def loadModule(config, key, modulename, package):
-#    import PackthingImporter as importer
-#    if key in config:
-#
-#        try:
-#            importer.module(modulename, package)
-#        except (KeyError, ImportError, TypeError):
-#            if not modulename or modulename == None:
-#                config.pop(key)
-#            else:
-#                log.error("No module '"+modulename+"' in '"+package.__name__+"'")
-#
-#    return config
-#
-#
-#def mergeKeys(config, key, name):
-#    if key in config:
-#        try:
-#            config[key][name].keys()
-#        except KeyError:
-#            log.warn("No "+key+"-specific key present: '"+name+"'")
-#        except AttributeError:
-#            log.warn("Empty "+key+"-specific key present: '"+name+"'")
-#        except TypeError:
-#            log.warn("Empty '"+key+"' key")
-#        else:
-#            for c in config[key][name].keys():
-#                if c in config.keys():
-#                    output = "'"+c+"' redefined as: "+str(config[key][name][c])+"\n"
-#                    output += "First defined as: "+str(config[c])
-#                    log.error(output)
-#
-#            config.update(config[key][name])
-#
-#        config.pop(key)
-#
-#    return config
-#
+def loadAll(package):
+    for m in importer.listModules(package):
+        importer.module(m, package)
