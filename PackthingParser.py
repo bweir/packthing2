@@ -31,11 +31,11 @@ kk.collection("builder",    "main")
 
 kk.collection("repo",       "main")
 
-kk.info("url",              "repo")
-kk.info("builder",          "repo")
-kk.info("branch",           "repo")
-kk.info("tag",              "repo")
-kk.info("root",             "repo")
+kk.info("url",              "repo",     kk.URL)
+kk.info("builder",          "repo",     kk.SLUG)
+kk.info("branch",           "repo",     kk.TEXT)
+kk.info("tag",              "repo",     kk.TEXT)
+kk.info("root",             "repo",     kk.PATH_REL)
 
 kk.collection("files",      "repo")
 
@@ -49,14 +49,6 @@ kk.info("extension",        "mimetype")
 kk.info("description",      "mimetype")
 kk.info("icon",             "mimetype")
 kk.info("files",            "mimetype")
-
-
-#print(kk.key("url")("mooooo").visit())
-#print(kk.key("repos")({
-#    "sdfsd": "sdfsdfs",
-#    "sdfsssss": "aaasds",
-#    }).visit())
-#
 
 def getScope(config, key, package):
     scope = cfg.value(key)
@@ -88,8 +80,8 @@ def getGroup(config, group):
 def getRepos(config):
     repos = {}
 
-    for c in config.keys():
-        print (c, config[c])
+#    for c in config.keys():
+#        print (c, config[c])
 
     return repos
 

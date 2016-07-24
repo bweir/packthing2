@@ -15,6 +15,8 @@ COPYRIGHT   = "[0-9]{4}(-[0-9]{4})?"
 URL         = "(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?"
 
 key_table = {}
+push_stack = 0
+
 
 class KeyBase(object):
     name = None
@@ -31,7 +33,6 @@ class KeyBase(object):
     def __init__(self, value):
         self.value = value
 
-#def key(group, name, required=False, valuetype=None, pattern=None):
 def key(name, group=None):
     keys(group)
 
@@ -66,8 +67,6 @@ def keys(group=None):
         key_table[group] = {}
     return key_table[group].keys()
 
-push_stack = 0
-
 def newDict(value, group=None):
 #    print (group)
     available = keys(group)
@@ -91,7 +90,18 @@ def newDict(value, group=None):
     return d
 
 
+def newkey(fn):
+    def bind(name, group=None, pattern=TEXT, required=False):
+        try:
+            return key_table[group][name]
+        except KeyError:
+            k = fn(name, group)
+            key_table[group][name] = k
+            return k
+    return bind
 
+
+@newkey
 def info(name, group=None, pattern=TEXT, required=False):
     def __init__(self, value):
         tf.isType(self.name, value, str)
@@ -110,18 +120,16 @@ def info(name, group=None, pattern=TEXT, required=False):
     key_table[group][name] = k
     return k
 
+@newkey
 def dictionary(name, group=None):
-    try:
-        return key_table[group][name]
-    except KeyError:
-        pass
-
     def __init__(self, value):
         tf.isType(self.name, value, dict)
         self.value = newDict(value, name)
 
     def visit(self):
         global push_stack
+        print(push_stack, "  "*push_stack, self.name)
+
         push_stack += 1
 
         for k, v in self.value.items():
@@ -133,9 +141,9 @@ def dictionary(name, group=None):
     k = key(name, group)
     k.visit = visit
     k.__init__ = __init__
-    key_table[group][name] = k
     return k
 
+@newkey
 def array(name, group=None):
     def __init__(self, value):
         tf.isType(self.name, value, list)
@@ -146,33 +154,38 @@ def array(name, group=None):
 
     def visit(self):
         global push_stack
+        print(push_stack, "  "*push_stack, self.name)
+
         push_stack += 1
+
         for v in self.value:
             v.visit()
-        global push_stack
+
         push_stack -= 1
 
     k = key(name, group)
     k.visit = visit
     k.__init__ = __init__
-    key_table[group][name] = k
     return k
 
-
+@newkey
 def collection(name, group=None):
     def __init__(self, value):
         tf.isType(self.name, value, dict)
         
         self.value = {}
         for k, v in value.items():
-            print (v, name, k)
+#            print (v, name, k)
             self.value[k] = newDict(v, name)
 
     def visit(self):
         global push_stack
-        push_stack += 1
+        print(push_stack, "  "*push_stack, self.name)
 
+        push_stack += 1
         for k, v in self.value.items():
+            print(push_stack, "  "*push_stack, k)
+
             push_stack += 1
             for subk, subv in v.items():
 #                print (subk, subv)
@@ -184,7 +197,6 @@ def collection(name, group=None):
     k = dictionary(name, group)
     k.visit = visit
     k.__init__ = __init__
-    key_table[group][name] = k
     return k
 
 
