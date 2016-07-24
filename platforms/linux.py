@@ -7,19 +7,24 @@ kk.info("categories",       "linux",    "[a-zA-Z]+(;[a-zA-Z]+)*",    True)
 kk.info("section",          "linux",    "[a-zA-Z]+(/[a-zA-Z]+)*",    True)
 kk.infoList("help2man",     "linux",    kk.SLUG)
 
-project = {
-    "ext":
-    {
-        "bin": "",
-        "lib": "so"
-    },
-    "path":
-    {
-        "bin": "bin",
-        "lib": "lib",
-        "share": "share/propelleride",
+def platform():
+    return {
+        "ext":
+        {
+            "bin": "",
+            "lib": "so"
+        },
+        "prefix":
+        {
+            "lib": "lib",
+        },
+        "path":
+        {
+            "bin": "bin",
+            "lib": "lib",
+            "share": "share/propelleride",
+        }
     }
-}
 
 def setup():
     cfg.allow("packager",   ["deb"])

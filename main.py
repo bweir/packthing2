@@ -6,11 +6,12 @@ import keyengine as kk
 
 import platforms
 
-pp.parse('packthing.yml')
+d = pp.load('packthing.yml')
+pp.getPackfile(d)
 
 platform = importer.module(cfg.value("platform"), platforms)
 platform.setup()
 
-pp.getPlatform(platform.project)
+pp.getPlatform(platform.platform())
 
 #cfg.printConfiguration()

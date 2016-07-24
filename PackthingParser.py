@@ -36,16 +36,24 @@ kk.info("master",           "main",     kk.SLUG,        False)
 
 kk.dictionary("platform",   "main")
 
-kk.dictionary("ext")
+# internal platform support
 
-kk.info("bin",              "ext",      kk.TEXT,        True)
-kk.info("lib",              "ext",      kk.TEXT,        True)
+kk.dictionary("_platform_")
 
-kk.dictionary("path")
+kk.dictionary("ext",        "_platform_")
 
-kk.info("bin",              "path",     kk.TEXT,        True)
-kk.info("lib",              "path",     kk.TEXT,        True)
-kk.info("share",            "path",     kk.TEXT,        True)
+kk.info("bin",              "ext",      kk.NSLUG,       True)
+kk.info("lib",              "ext",      kk.NSLUG,       True)
+
+kk.dictionary("prefix",     "_platform_")
+
+kk.info("lib",              "prefix",   kk.NSLUG,       True)
+
+kk.dictionary("path",       "_platform_")
+
+kk.info("bin",              "path",     kk.PATH_REL,    True)
+kk.info("lib",              "path",     kk.PATH_REL,    True)
+kk.info("share",            "path",     kk.PATH_REL,    True)
 
 # packager support
 
@@ -98,18 +106,15 @@ def getPackfile(d):
         for n in v.value:
             print (v.value[n]["url"].value)
 
-
-
 #    print(k, k.collect)
 #    log.abort()
 
 def getPlatform(d):
     log.failOnError(False)
-    k = kk.dictionary("ext")(d["ext"])
-#    k.visit()
-    k = kk.dictionary("path")(d["path"])
+    k = kk.dictionary("_platform_")(d)
 #    k.visit()
     log.printErrors()
+    print(k.collect(kk.key("path")))
 
 
 def load(filename):
@@ -117,11 +122,3 @@ def load(filename):
         return yaml.load(open(filename))
     except IOError:
         log.error("'"+self.repofile+"' not found; please specify a valid packthing file")
-
-def parse(filename):
-
-    d = load(filename)
-
-    getPackfile(d)
-
-#    print(kk.key_table)

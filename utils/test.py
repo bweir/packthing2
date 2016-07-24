@@ -26,7 +26,7 @@ def isEmpty(key, value):
 def isMatch(key, value, pattern):
     try:
         if not re.compile("^"+pattern+"$").match(value):
-            log.error(key+"' value '"+value+"' does not match pattern '"+pattern+"'")
+            log.error("'"+key+"' value '"+value+"' does not match pattern '"+pattern+"'")
     except TypeError:
         log.error("Invalid type for '"+key+"' value: "+str(value))
 

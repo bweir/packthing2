@@ -9,6 +9,7 @@ import utils.test as tf
 TEXT        = ".*"
 EMAIL       = "[^@]+@[^@]+\.[^@]+"
 SLUG        = "[a-z]+"
+NSLUG       = "[a-z]*"
 PATH_ABS    = "(/[^\\\]+)*"
 PATH_REL    = "[^\\\/]+"+PATH_ABS
 CATEGORY    = "[a-z\-.]*"
@@ -241,7 +242,6 @@ def collection(name, group=None):
         
         self.value = {}
         for k, v in value.items():
-#            print (v, name, k)
             self.value[k] = newDict(v, name, k)
 
     def visit(self):
@@ -254,7 +254,6 @@ def collection(name, group=None):
 
             push_stack += 1
             for subk, subv in v.items():
-#                print (subk, subv)
                 subv.visit()
 
             push_stack += -1
