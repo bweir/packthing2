@@ -1,6 +1,7 @@
 from __future__ import print_function
 
 import PackthingImporter as importer
+import PackthingCoreObject as core
 
 import utils.log as log
 import utils.test as tf
@@ -26,15 +27,20 @@ class KeyBase(object):
     value = None
     required = None
 
-    def visit(self):
-#        print (k, v)
-        print (self)
-
     def __repr__(self):
         return "(%s (%s): %s)" % (self.name, self.group, self.value)
 
     def __init__(self, value):
         self.value = value
+
+    def visit(self):
+        print (self)
+
+    def collect(self, classtype):
+        if isinstance(self, classtype):
+            return [self]
+        else:
+            return []
 
 def key(name, group=None):
     keys(group)
@@ -170,13 +176,24 @@ def dictionary(name, group=None):
         push_stack += 1
 
         for k, v in self.value.items():
-#            print ("DICT", k, v)
             v.visit()
 
         push_stack -= 1
 
+    def collect(self, classtype):
+        l = []
+
+        if isinstance(self, classtype):
+            l.append(self)
+
+        for k, v in self.value.items():
+            l.extend(v.collect(classtype))
+
+        return l
+
     k = key(name, group)
     k.visit = visit
+    k.collect = collect
     k.__init__ = __init__
     return k
 
@@ -200,8 +217,20 @@ def array(name, group=None):
 
         push_stack -= 1
 
+    def collect(self, classtype):
+        l = []
+
+        if isinstance(self, classtype):
+            l.append(self)
+
+        for v in self.value:
+            l.extend(v.collect(classtype))
+
+        return l
+
     k = key(name, group)
     k.visit = visit
+    k.collect = collect
     k.__init__ = __init__
     return k
 
@@ -231,8 +260,21 @@ def collection(name, group=None):
             push_stack += -1
         push_stack += -1
 
+    def collect(self, classtype):
+        l = []
+
+        if isinstance(self, classtype):
+            l.append(self)
+
+        for k, v in self.value.items():
+            for subk, subv in v.items():
+                l.extend(subv.collect(classtype))
+
+        return l
+
     k = dictionary(name, group)
     k.visit = visit
+    k.collect = collect
     k.__init__ = __init__
     return k
 
@@ -240,3 +282,4 @@ def collection(name, group=None):
 def loadAll(package):
     for m in importer.listModules(package):
         importer.module(m, package)
+

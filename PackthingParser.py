@@ -16,6 +16,8 @@ kk.loadAll(controllers)
 kk.loadAll(builders)
 kk.loadAll(packagers)
 
+# main packfile support
+
 kk.dictionary("main")
 
 kk.info("name",             "main",     kk.TEXT,        True)
@@ -30,9 +32,30 @@ kk.info("tagline",          "main",     kk.TEXT,        True)
 kk.info("description",      "main",     kk.TEXT,        True)
 kk.info("master",           "main",     kk.SLUG,        False)
 
+# platform support
+
 kk.dictionary("platform",   "main")
+
+kk.dictionary("ext")
+
+kk.info("bin",              "ext",      kk.TEXT,        True)
+kk.info("lib",              "ext",      kk.TEXT,        True)
+
+kk.dictionary("path")
+
+kk.info("bin",              "path",     kk.TEXT,        True)
+kk.info("lib",              "path",     kk.TEXT,        True)
+kk.info("share",            "path",     kk.TEXT,        True)
+
+# packager support
+
 kk.dictionary("packager",   "main")
+
+# builder support
+
 kk.dictionary("builder",    "main")
+
+# controller support
 
 kk.collection("repo",       "main")
 
@@ -47,6 +70,8 @@ kk.collection("files",      "repo")
 kk.info("name",             "files",    kk.TEXT,        True)
 kk.info("icon",             "files",    kk.PATH_REL,    True)
 
+# mimetype support
+
 kk.array("mimetype",        "main")
 
 kk.info("type",             "mimetype", kk.TEXT,        True)
@@ -56,13 +81,36 @@ kk.info("icon",             "mimetype", kk.TEXT,        True)
 kk.info("files",            "mimetype", kk.TEXT,        True)
 
 
-
 def getPackfile(d):
     log.failOnError(False)
     k = kk.dictionary("main")(d)
     log.printErrors()
 #    k.visit()
+
+    print(k.collect(kk.key("files", "mimetype")))
+
+    print(k.collect(kk.key("help2man", "linux")))
+
+    for v in k.collect(kk.key("mimetype", "mimetype")):
+        print(v.value["files"])
+
+    for v in k.collect(kk.key("repo", "main")):
+        for n in v.value:
+            print (v.value[n]["url"].value)
+
+
+
+#    print(k, k.collect)
 #    log.abort()
+
+def getPlatform(d):
+    log.failOnError(False)
+    k = kk.dictionary("ext")(d["ext"])
+#    k.visit()
+    k = kk.dictionary("path")(d["path"])
+#    k.visit()
+    log.printErrors()
+
 
 def load(filename):
     try:

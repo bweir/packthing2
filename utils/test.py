@@ -20,8 +20,8 @@ def isType(key, value, expected):
                    "(value: "+str(value)+")")
 
 def isEmpty(key, value):
-    if value == "" or value == None:
-        log.error("'"+key+"' is defined but empty") 
+    if value == None:
+        log.warn("'"+key+"' is defined but empty") 
 
 def isMatch(key, value, pattern):
     try:
