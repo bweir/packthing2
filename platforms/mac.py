@@ -5,7 +5,7 @@ kk.dictionary("mac",    "platform")
 
 kk.info("category",     "mac",    "[a-zA-Z-]+(\\.[a-zA-Z-]+)*",    True)
 
-def platform():
+def tree():
     return {
         "ext":
         {

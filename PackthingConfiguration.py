@@ -64,6 +64,19 @@ def config(name):
         config_table[name] = k
     return k
 
+def setting(name, value):
+    def default(self):
+        return self._value
+
+    def supported(self):
+        return [self._value]
+
+    k = config(name)
+    k._value = value
+    k.default = default
+    k.supported = supported
+    config_table[name] = k
+
 def method(k):
     assert issubclass(k, ConfigBase)
     def bind(fn):
@@ -75,13 +88,12 @@ config("platform")
 config("packager")
 
 @method(config("arch"))
-def default(self):      return platform.processor().replace("x86_64", "amd64")
-
-@method(config("arch"))
 def supported(self):    return ["i686", "amd64", "armhf", "armel"]
 
-@method(config("platform"))
-def supported(self):    return importer.listModules(platforms)
+@method(config("arch"))
+def default(self):      return platform.processor().replace("x86_64", "amd64")
+
+
 
 @method(config("packager"))
 def supported(self):    return importer.listModules(packagers)
@@ -91,6 +103,10 @@ def supported(self):    return importer.listModules(builders)
 
 @method(config("controller"))
 def supported(self):    return importer.listModules(controllers)
+
+
+@method(config("platform"))
+def supported(self):    return importer.listModules(platforms)
 
 @method(config("platform"))
 def default(self):

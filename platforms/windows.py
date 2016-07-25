@@ -1,7 +1,7 @@
 import keyengine as kk
 import PackthingConfiguration as cfg
 
-def platform():
+def tree():
     return {
         "ext":
         {

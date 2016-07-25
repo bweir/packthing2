@@ -278,7 +278,19 @@ def collection(name, group=None):
     return k
 
 
-def loadAll(package):
+def loadall(package):
     for m in importer.listModules(package):
         importer.module(m, package)
+
+def findall(tree, name, group=None):
+    try:
+        return tree.collect(key(name, group))
+    except IndexError:
+        return []
+
+def find(tree, name, group=None):
+    try:
+        return findall(tree, name, group)[0]
+    except IndexError:
+        return None
 
