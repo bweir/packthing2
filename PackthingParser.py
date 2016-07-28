@@ -11,10 +11,14 @@ import controllers
 import builders
 import packagers
 
-kk.loadall(platforms)
-kk.loadall(controllers)
-kk.loadall(builders)
-kk.loadall(packagers)
+def loadall(package):
+    for m in importer.listModules(package):
+        importer.module(m, package)
+
+loadall(platforms)
+loadall(controllers)
+loadall(builders)
+loadall(packagers)
 
 # main packfile support
 
@@ -95,11 +99,16 @@ kk.info("description",      "mimetype",     kk.TEXT,        True)
 kk.info("icon",             "mimetype",     kk.TEXT,        True)
 kk.info("files",            "mimetype",     kk.TEXT,        True)
 
+tree_table = []
 
-def getTree(d, root=None):
+def parse(d, root=None):
     log.failOnError(False)
+    log.printOnError(False)
     tree = kk.dictionary(root)(d)
     log.printErrors()
+    log.failOnError(True)
+    log.printOnError(True)
+    add_root(tree)
 #    print(k.collect(kk.key("files", "mimetype")))
 #
 #    print(k.collect(kk.key("help2man", "linux")))
@@ -121,3 +130,37 @@ def load(filename):
         return yaml.load(open(filename))
     except IOError:
         log.error("'"+self.repofile+"' not found; please specify a valid packthing file")
+
+def add_root(tree):
+    if not tree.group == None:
+        log.error("Not root tree:", tree.name)
+
+    for t in tree_table:
+        if t.name == tree.name:
+            log.note("Root tree is defined twice:", tree.name)
+
+    tree_table.append(tree)
+
+def findall(name, group=None):
+    items = []
+    for t in tree_table:
+        try:
+            items.extend(t.collect(kk.key(name, group)))
+        except IndexError:
+            pass
+    return items
+
+def find(name, group=None):
+    try:
+        return findall(name, group)[0]
+    except IndexError:
+        return None
+
+def findallvalues(name, group=None):
+    items = findall(name, group)
+    newitems = []
+    for i in items:
+        if i.value not in newitems:
+            newitems.append(i.value)
+    return newitems
+

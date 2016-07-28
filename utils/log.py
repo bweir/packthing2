@@ -8,7 +8,7 @@ _platform = platform.system().lower()
 errors = []
 
 _fail_on_error = False
-_print_on_msg = False
+_print_on_error = True
 
 def failOnError(enabled):
     global _fail_on_error
@@ -46,7 +46,7 @@ def msg(category, color, error, *objs):
     if color and not _platform == "windows":
         s = color + s + Color.off
 
-    if _print_on_msg:
+    if _print_on_error:
         print(s, file=sys.stderr)
     else:
         errors.append(s)

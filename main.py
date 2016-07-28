@@ -9,23 +9,45 @@ import packagers
 
 from utils import log
 
+def add_config(names, group=None):
+    for n in names:
+        cfg.setting(n,  pp.find(n, group).value)
+
+
+# collect main info
+
 d = pp.load('packthing.yml')
-tree_main = pp.getTree(d, "main")
+pp.parse(d, "main")
+
+add_config(["name",         "package",  "org",      "url",
+            "maintainer",   "email",    "copyright","license",
+            "tagline",      "description"], "main")
+
+# collect platforms
 
 platform = importer.module(cfg.value("platform"), platforms)
+
+add_config(kk.keys(cfg.value("platform")), cfg.value("platform"))
 platform.setup()
+pp.parse(platform.tree(), "_platform_")
+
+# collect controllers
 
 def version():
     cfg.setting("version", "0.0.0")
     try:
-        cfg.setting("version",  kk.find(tree_main, "version", "main").value)
+        cfg.setting("version",  pp.find("version", "main").value)
     except AttributeError:
         pass
     cfg.override("version", "anothervalue")
 
 version()
 
-cfg.setting("package",  kk.find(tree_main, "package", "main").value)
+# collect builders
+
+print(pp.findallvalues("builder", "repo"))
+
+# collect packagers
 
 def installer_name(package, version, arch, ext=None):
     s = package + "-" + version + "-" + arch
@@ -33,18 +55,17 @@ def installer_name(package, version, arch, ext=None):
         s += "." + ext
     return s
 
-tree_platform = pp.getTree(platform.tree(), "_platform_")
-
 packager = importer.module(cfg.value("packager"), packagers)
 #packager.setup()
 
-tree_packager = pp.getTree(packager.tree(), "_packager_")
+pp.parse(packager.tree(), "_packager_")
+pp.parse(packager.tree(), "_packager_")
 
 cfg.setting("installer", 
         installer_name(cfg.value("package"),
             cfg.value("version"),
             cfg.value("arch"),
-            kk.find(tree_packager, "ext", "_packager_").value))
+            pp.find("ext", "_packager_").value))
 
 
 cfg.printConfiguration()

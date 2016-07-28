@@ -21,7 +21,6 @@ URL         = "(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?"
 key_table = {}
 push_stack = 0
 
-
 class KeyBase(object):
     name = None
     group = None
@@ -276,21 +275,4 @@ def collection(name, group=None):
     k.collect = collect
     k.__init__ = __init__
     return k
-
-
-def loadall(package):
-    for m in importer.listModules(package):
-        importer.module(m, package)
-
-def findall(tree, name, group=None):
-    try:
-        return tree.collect(key(name, group))
-    except IndexError:
-        return []
-
-def find(tree, name, group=None):
-    try:
-        return findall(tree, name, group)[0]
-    except IndexError:
-        return None
 

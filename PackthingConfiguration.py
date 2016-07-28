@@ -136,11 +136,17 @@ def override(configname, value):
     override_table[configname] = value
 
 def printConfiguration():
-    for k in keys():
+    ks = keys()
+    ks.sort()
+    for k in ks:
         v = value(k)
 #        if not v:
 #            v = "No "+k+" selected"
-        print ("  %-20s: %-16s [%s]" % (k, v, ', '.join(allowed(k))))
+        try:
+            print ("  %-20s: %-40s [%s]" % (k, v, ', '.join(allowed(k))))
+        except TypeError:
+            print ("  %-20s: %-40s [%s]" % (k, v, allowed(k)))
+
     log.printErrors()
 
 
